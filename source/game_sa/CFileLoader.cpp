@@ -733,36 +733,35 @@ int CFileLoader::LoadTimeObject(const char* line) {
     int32_t modelId;
     char    modelName[24];
     char    texName[24];
-    float   drawDistance;
+    float   drawDistance[3];
     int32_t flags;
     int32_t timeOn;
     int32_t timeOff;
 
-    int numValuesRead = sscanf(line, "%d %s %s %f %d %d %d", &modelId, modelName, texName, &drawDistance, &flags, &timeOn, &timeOff);
+    int numValuesRead = sscanf(line, "%d %s %s %f %d %d %d", &modelId, modelName, texName, &drawDistance[0], &flags, &timeOn, &timeOff);
 
-    if (numValuesRead != 7 || drawDistance < 4.0) {
-        int32_t numFloats;
-        float   unused[2];
+    if (numValuesRead != 7 || drawDistance[0] < 4.0) {
+        int32_t numObjs;
 
-        if (sscanf(line, "%d %s %s %d", &modelId, modelName, texName, &numFloats) != 4)
+        if (sscanf(line, "%d %s %s %d", &modelId, modelName, texName, &numObjs) != 4)
             return -1;
 
-        switch (numFloats) {
+        switch (numObjs) {
         case 1:
-            sscanf(line, "%d %s %s %d %f %d %d %d", &modelId, modelName, texName, &numFloats, &drawDistance, &flags, &timeOn, &timeOff);
+            sscanf(line, "%d %s %s %d %f %d %d %d", &modelId, modelName, texName, &numObjs, &drawDistance[0], &flags, &timeOn, &timeOff);
             break;
         case 2:
-            sscanf(line, "%d %s %s %d %f %f %d %d %d", &modelId, modelName, texName, &numFloats, &drawDistance, &unused[0], &flags, &timeOn, &timeOff);
+            sscanf(line, "%d %s %s %d %f %f %d %d %d", &modelId, modelName, texName, &numObjs, &drawDistance[0], &drawDistance[1], &flags, &timeOn, &timeOff);
             break;
         case 3:
-            sscanf(line, "%d %s %s %d %f %f %f %d %d %d", &modelId, modelName, texName, &numFloats, &drawDistance, &unused[0], &unused[1], &flags, &timeOn, &timeOff);
+            sscanf(line, "%d %s %s %d %f %f %f %d %d %d", &modelId, modelName, texName, &numObjs, &drawDistance[0], &drawDistance[1], &drawDistance[2], &flags, &timeOn, &timeOff);
             break;
         }
     }
 
     CTimeModelInfo* timeModel = CModelInfo::AddTimeModel(modelId);
-    timeModel->m_fDrawDistance = drawDistance;
-    timeModel->m_nKey = CKeyGen::GetUppercaseKey(modelName);
+    timeModel->m_fDrawDistance = drawDistance[0];
+    timeModel->SetModelName(modelName);
     timeModel->SetTexDictionary(texName);
 
     CTimeInfo* timeInfo = timeModel->GetTimeInfo();
@@ -771,7 +770,6 @@ int CFileLoader::LoadTimeObject(const char* line) {
     SetAtomicModelInfoFlags(timeModel, flags);
 
     CTimeInfo* otherTimeInfo = timeInfo->FindOtherTimeModel(modelName);
-
     if (otherTimeInfo)
         otherTimeInfo->SetOtherTimeModel(modelId);
 

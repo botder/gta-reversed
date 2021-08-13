@@ -9,6 +9,7 @@ void CTimeInfo::InjectHooks() {
     ReversibleHooks::Install("CTimeInfo", "SetTimes", 0x5B3430, &CTimeInfo::SetTimes);
 }
 
+// 0x4C47E0
 CTimeInfo* CTimeInfo::FindOtherTimeModel(const char* modelName) {
     char timeSwitchModelName[24];
     strcpy(timeSwitchModelName, modelName);
